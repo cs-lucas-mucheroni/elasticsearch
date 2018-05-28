@@ -1,0 +1,100 @@
+
+#### Character Filters ####
+
+POST _analyze 
+{
+  "char_filter":  [ "html_strip" ],
+  "text": "<p>I&apos;m so <b>happy</b>!</p>",
+  "tokenizer": "standard"
+}
+
+PUT meu_index
+
+{ 
+    "settings": { 
+        "analysis": { 
+            "analyzer": { 
+                "my_analyzer": { 
+                    "tokenizer": "standard", "char_filter": [ "my_char_filter" ]
+                     } },
+                    "char_filter": { "my_char_filter": { 
+                        "type": "mapping", "mappings": [ ":) => _feliz_", ":( => _triste_" ] 
+                } 
+            } 
+        } 
+     } 
+ }
+
+POST meu_index/_analyze { "analyzer": "my_analyzer", "text": "eu estou chateadinho bb :(" }
+
+
+#### Tokenizer ####
+
+POST _analyze 
+
+{ "tokenizer": "whitespace", 
+"text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone." }
+
+POST _analyze 
+
+{ "tokenizer": "letter", 
+"text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone." }
+
+#### Token Filter ####
+
+1) stopwords
+PUT meu_index2
+
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": { 
+          "type": "standard", 
+          "stopwords": "_brazilian_" 
+        }
+      }
+    }
+  }
+}
+
+POST meu_index2/_analyze
+
+{
+  "analyzer" : "my_analyzer",
+  "text" : "as bruxas estao com os bruxos"
+}
+
+2) Stemming
+
+PUT meu_index3
+{
+    "settings": {
+        "analysis" : {
+            "analyzer" : {
+                "my_analyzer" : {
+                "tokenizer" : "standard",
+                    "filter" : ["standard", "my_stemmer"]
+                }
+            },
+            "filter" : {
+                "my_stemmer" : {
+                    "type" : "stemmer",
+                    "name" : "brazilian"
+                }
+            }
+        }
+    }
+}
+
+POST meu_index3/_analyze
+
+{
+  "analyzer" : "my_analyzer",
+  "text" : "as bruxas estao com os bruxos"
+}
+
+
+
+
+
